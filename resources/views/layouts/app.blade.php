@@ -10,11 +10,12 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    <body class="bg-background-light dark:bg-background-dark font-display antialiased">
+
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
 
@@ -28,9 +29,10 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
                 {{ $slot }}
             </main>
         </div>
+        @stack('scripts')
     </body>
 </html>
