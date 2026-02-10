@@ -9,8 +9,6 @@ use App\Services\AI\Strategies\ProbabilisticStrategy;
 /**
  * Serviço simples que seleciona a estratégia de IA com base na dificuldade do jogo.
  *
- * Observação: não foi encontrada uma model `Game` no projeto. Aqui assumimos que
- * o objeto passado para `playTurn` possui as propriedades `difficulty` e `playerBoard`.
  */
 class AISelector
 {
@@ -27,7 +25,7 @@ class AISelector
         $strategy = match ($difficulty) {
             'basic' => new RandomStrategy(),
             'intermediate' => new HunterStrategy(),
-            'advanced' => class_exists(ProbabilisticStrategy::class) ? new ProbabilisticStrategy() : new RandomStrategy(),
+            'advanced' => new ProbabilisticStrategy(),
             default => new RandomStrategy(),
         };
 
