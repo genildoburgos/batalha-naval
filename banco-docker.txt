@@ -1,0 +1,6 @@
+docker run --name pg-batalha-naval \
+    -e POSTGRES_DB=batalha_naval \
+    -e POSTGRES_USER=laravel \
+    -e POSTGRES_PASSWORD=laravel \
+    -p 5432:5432 \
+    -d postgres:15
