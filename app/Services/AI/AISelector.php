@@ -20,12 +20,12 @@ class AISelector
      */
     public function playTurn($game): array
     {
-        $difficulty = $game->difficulty ?? 'basic';
+        $difficulty = $game->difficulty ?? 'facil';
 
         $strategy = match ($difficulty) {
-            'basic' => new RandomStrategy(),
-            'intermediate' => new HunterStrategy(),
-            'advanced' => new ProbabilisticStrategy(),
+            'facil' => new RandomStrategy(),
+            'medio' => new HunterStrategy(),
+            'dificil' => new ProbabilisticStrategy(),
             default => new RandomStrategy(),
         };
 
