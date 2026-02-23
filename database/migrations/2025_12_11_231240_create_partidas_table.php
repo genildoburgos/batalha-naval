@@ -17,12 +17,11 @@ return new class extends Migration
             $table->enum('dificuldade', ['facil', 'medio', 'dificil']);
             $table->unsignedTinyInteger('board_width')->default(10);
             $table->unsignedTinyInteger('board_height')->default(10);
-            $table->enum('status', ['aguardando', 'em_andamento', 'finalizada'])->default('aguardando');
+            $table->enum('status', ['aguardando', 'posicionamento', 'em_andamento', 'finalizada'])->default('aguardando');
 
             $table->foreignId('criado_por')->constrained('users')->cascadeOnDelete();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('finished_at')->nullable();
-
             $table->timestamps();
         });
     }

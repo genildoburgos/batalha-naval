@@ -25,7 +25,8 @@ class PartidaController extends Controller
         return view('campanha_dificuldade');
     }
 
-    public function modos(){
+    public function modos()
+    {
         return view('modos_jogo');
     }
 
@@ -39,9 +40,23 @@ class PartidaController extends Controller
             [
                 'started_at' => now(),
                 'criado_por' => Auth::id(),
+                'status' => 'posicionamento',
             ]
         ));
-        dd($partida);
+
+        // Cria tabuleiro do jogador (vazio 10x10)
+        $partida->tabuleiros()->create([
+            'user_id' => Auth::id(),
+            'tabuleiro_grid' => array_fill(0, 10, array_fill(0, 10, ['status' => 'agua', 'navio' => null]))
+        ]);
+
+        // Cria o tabuleiro da IA (vazio 10x10)
+        $partida->tabuleiros()->create([
+            'user_id' => null,
+            'tabuleiro_grid' => array_fill(0, 10, array_fill(0, 10, ['status' => 'agua', 'navio' => null]))
+        ]);
+
+        return redirect()->route('jogo.batalha', $partida->id);
     }
 
     /**

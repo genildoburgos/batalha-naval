@@ -3,6 +3,7 @@
 use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\JogoBatalha;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('partida', PartidaController::class);
     Route::get('/modos', [PartidaController::class, 'modos'])->name('partida.modos');
+    Route::get('/batalha/{id}', JogoBatalha::class)->name('jogo.batalha');
 });
 
 require __DIR__.'/auth.php';
