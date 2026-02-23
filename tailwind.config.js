@@ -15,6 +15,7 @@ export default {
                 primary: "#137fec",
                 "background-light": "#f6f7f8",
                 "background-dark": "#101922",
+                "surface-dark": "#182431",
             },
             fontFamily: {
                 display: ["Inter", "sans-serif"],
@@ -30,3 +31,4 @@ export default {
 
     plugins: [forms],
 };
+
