@@ -3,19 +3,19 @@
 namespace App\Services\AI\Strategies;
 
 use App\Services\AI\Contracts\OpponentStrategy;
-use App\Models\Board;
+use App\Models\Tabuleiro;
 
 class HunterStrategy implements OpponentStrategy
 {
-    public function chooseTarget(Board $playerBoard): array
+    public function chooseTarget(Tabuleiro $playerBoard): array
     {
         // BUSCA INTELIGENTE:
         // Pega o último tiro que foi um ACERTO (is_hit),
         // mas que NÃO resultou no afundamento total do navio (ship_sunk false).
         // Isso garante que, mesmo se a IA errar o tiro seguinte, ela lembre de voltar para terminar o serviço.
-        $targetShot = $playerBoard->shots()
-            ->where('is_hit', true)
-            ->where('ship_sunk', false) // Assumindo que você atualiza isso no DB ao afundar
+        $targetShot = $playerBoard->tiros()
+            ->where('foi_atingido', true)
+            ->where('navio_afundado', false) // Assumindo que você atualiza isso no DB ao afundar
             ->latest()
             ->first();
         
@@ -39,7 +39,7 @@ class HunterStrategy implements OpponentStrategy
      * Retorna um vizinho válido (não fora do tabuleiro e ainda não atacado).
      * Se nenhum vizinho válido for encontrado, delega para RandomStrategy.
      */
-    protected function getValidNeighbor(int $x, int $y, Board $playerBoard): array
+    protected function getValidNeighbor(int $x, int $y, Tabuleiro $playerBoard): array
     {
         $neighbors = [
             ['x' => $x, 'y' => $y - 1], // norte
@@ -55,7 +55,7 @@ class HunterStrategy implements OpponentStrategy
             if ($n['x'] < 0 || $n['x'] > 9 || $n['y'] < 0 || $n['y'] > 9) {
                 continue;
             }
-            if (!$playerBoard->hasShotAt($n['x'], $n['y'])) {
+            if (!$playerBoard->atirouEm($n['x'], $n['y'])) {
                 return $n;
             }
         }
