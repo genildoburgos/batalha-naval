@@ -24,4 +24,15 @@ class Tabuleiro extends Model
     {
         return $this->tiros()->where('x', $x)->where('y', $y)->exists();
     }
+
+    public function foiAguaOuAfundado(int $x, int $y): bool
+    {
+        $tiro = $this->tiros()->where('x', $x)->where('y', $y)->first();
+        
+        if (!$tiro) {
+            return false;
+        }
+
+        return !$tiro->foi_atingido || $tiro->navio_afundado;
+    }
 }
