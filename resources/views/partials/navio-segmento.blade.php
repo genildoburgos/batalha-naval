@@ -47,12 +47,15 @@
         </svg>
 
     @elseif($isProa)
-        {{-- PROA: ponta da frente --}}
+        {{-- PROA: similar ao meio mas com detalhe na ponta --}}
         <svg viewBox="0 0 40 40" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 13 L28 13 Q40 20 28 27 L2 27 Z" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-            <line x1="2" y1="20" x2="28" y2="20" stroke="white" stroke-opacity="0.3" stroke-width="0.8"/>
-            <circle cx="20" cy="20" r="3" fill="white" opacity="0.6"/>
-            <circle cx="10" cy="20" r="2" fill="white" opacity="0.35"/>
+            <rect x="0" y="13" width="40" height="14" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            <rect x="6" y="6" width="6" height="9" rx="1" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
+            <line x1="24" y1="13" x2="24" y2="3" stroke="white" stroke-opacity="0.5" stroke-width="1.5"/>
+            <circle cx="24" cy="3" r="2" fill="white" opacity="0.6"/>
+            <line x1="0" y1="20" x2="40" y2="20" stroke="white" stroke-opacity="0.25" stroke-width="0.8"/>
+            {{-- Detalhe sutil na frente --}}
+            <circle cx="34" cy="20" r="2.5" fill="white" opacity="0.45"/>
         </svg>
 
     @elseif($isPopa)

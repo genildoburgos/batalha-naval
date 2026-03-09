@@ -22,6 +22,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/modos', [PartidaController::class, 'modos'])->name('partida.modos');
     Route::get('/batalha/{id}', JogoBatalha::class)->name('jogo.batalha');
     Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
+    Route::get('/regras', function () {
+        return view('regras');
+    })->name('regras');
+    Route::get('/configuracoes', [ProfileController::class, 'edit'])->name('configuracoes');
 });
 
 require __DIR__.'/auth.php';

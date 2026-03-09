@@ -162,7 +162,7 @@ class="grid-cell {{ isset($celula['ship_id']) ? 'ship-block cursor-alias' : 'hov
                             @foreach($meuTabuleiro as $r => $linha)
                         @foreach($linha as $c => $celula)
                             <div wire:key="meu-{{ $r }}-{{ $c }}"
-                                style="color: {{ $celula['cor'] ?? 'transparent' }};"
+                                style="color: {{ $celula['cor'] ?? 'transparent' }}; background: {{ isset($celula['cor']) && in_array($celula['status'], ['posicionado','acerto','afundado']) ? $celula['cor'] : 'transparent' }};"
                                 class="grid-cell
                                 {{ $celula['status'] === 'acerto'  ? 'cell-hit'  : '' }}
                                 {{ $celula['status'] === 'erro'     ? 'cell-miss' : '' }}

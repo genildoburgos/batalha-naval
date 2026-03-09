@@ -26,14 +26,14 @@
                                     class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#233648] text-white text-base font-bold leading-normal tracking-[0.015em] w-full transition-colors hover:bg-[#344a60]">
                                     <span class="truncate">Carregar Jogo</span>
                                 </button>
-                                <button
+                                <a href="{{ route('configuracoes') }}"
                                     class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#233648] text-white text-base font-bold leading-normal tracking-[0.015em] w-full transition-colors hover:bg-[#344a60]">
                                     <span class="truncate">Configurações</span>
-                                </button>
-                                <button
+                                </a>
+                                <a href="{{ route('regras') }}"
                                     class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#233648] text-white text-base font-bold leading-normal tracking-[0.015em] w-full transition-colors hover:bg-[#344a60]">
                                     <span class="truncate">Regras</span>
-                                </button>
+                                </a>
                             </div>
                         </div>
 
