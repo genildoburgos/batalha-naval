@@ -162,8 +162,9 @@ class="grid-cell {{ isset($celula['ship_id']) ? 'ship-block cursor-alias' : 'hov
                             @foreach($meuTabuleiro as $r => $linha)
                         @foreach($linha as $c => $celula)
                             <div wire:key="meu-{{ $r }}-{{ $c }}"
-                                style="color: {{ $celula['cor'] ?? 'transparent' }}; background: {{ isset($celula['cor']) && in_array($celula['status'], ['posicionado','acerto','afundado']) ? $celula['cor'] : 'transparent' }};"
-                                class="grid-cell
+                                wire:click="{{ ($fase === 'batalha' && ($partida->modo ?? '') === 'dinamico' && !$jaMoveuNesteTurno) ? "selecionarNavioParaMover('".($celula['ship_id'] ?? '')."')" : '' }}"
+                                class="grid-cell relative
+                                {{ ($navioParaMover === ($celula['ship_id'] ?? null)) ? 'ring-2 ring-yellow-400 z-30 shadow-[0_0_15px_#facc15]' : '' }}
                                 {{ $celula['status'] === 'acerto'  ? 'cell-hit'  : '' }}
                                 {{ $celula['status'] === 'erro'     ? 'cell-miss' : '' }}
                                 {{ $celula['status'] === 'afundado' ? 'cell-sunk' : '' }}">
@@ -265,7 +266,34 @@ class="grid-cell {{ isset($celula['ship_id']) ? 'ship-block cursor-alias' : 'hov
                     <h4 class="text-2xl font-black uppercase italic">Combate Ativo</h4>
                     <p class="text-white/40 text-sm mt-2 max-w-[250px]">Selecione as coordenadas no radar inimigo para disparar.</p>
 
-                    {{-- Botão de desistência ou retorno se necessário --}}
+                    @if(($partida->modo ?? '') === 'dinamico' && !$jaMoveuNesteTurno)
+                        <div class="mt-8 p-6 bg-white/5 rounded-3xl border border-[#137fec]/20">
+                            <h5 class="text-[#137fec] font-black text-xs uppercase tracking-widest text-center mb-6">Manobra Tática</h5>
+
+                            @if($navioParaMover)
+                                <div class="grid grid-cols-3 gap-3 max-w-[180px] mx-auto">
+                                    <button wire:click="moverNavio('norte')" class="col-start-2 p-3 bg-[#137fec]/10 hover:bg-[#137fec] rounded-2xl transition-all">
+                                        <span class="material-symbols-outlined">keyboard_arrow_up</span>
+                                    </button>
+                                    <button wire:click="moverNavio('oeste')" class="col-start-1 p-3 bg-[#137fec]/10 hover:bg-[#137fec] rounded-2xl transition-all">
+                                        <span class="material-symbols-outlined">keyboard_arrow_left</span>
+                                    </button>
+                                    <button wire:click="moverNavio('sul')" class="col-start-2 p-3 bg-[#137fec]/10 hover:bg-[#137fec] rounded-2xl transition-all">
+                                        <span class="material-symbols-outlined">keyboard_arrow_down</span>
+                                    </button>
+                                    <button wire:click="moverNavio('leste')" class="col-start-3 p-3 bg-[#137fec]/10 hover:bg-[#137fec] rounded-2xl transition-all">
+                                        <span class="material-symbols-outlined">keyboard_arrow_right</span>
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-white/40 mt-6 text-center italic">Movimente o navio selecionado em 1 casa</p>
+                            @else
+                                <div class="flex flex-col items-center gap-4 py-4">
+                                    <span class="material-symbols-outlined text-white/20 text-4xl">ads_click</span>
+                                    <p class="text-[10px] text-white/50 text-center">Selecione um navio no <br><strong class="text-blue-400">Radar Amigo</strong> para mover</p>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             @endif
         </aside>

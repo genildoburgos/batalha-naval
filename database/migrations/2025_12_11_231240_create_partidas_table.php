@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('partidas', function (Blueprint $table) {
             $table->id();
-            $table->enum('modo', ['pve', 'pvp'])->default('pve');
+            $table->enum('modo', ['pve', 'pvp', 'dinamico'])->default('pve');
             $table->enum('dificuldade', ['facil', 'medio', 'dificil']);
             $table->unsignedTinyInteger('board_width')->default(10);
             $table->unsignedTinyInteger('board_height')->default(10);

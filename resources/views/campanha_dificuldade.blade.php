@@ -16,7 +16,7 @@
                     <!-- Difficulty Cards -->
                     <form id="campanha_store" action="{{ route('partida.store') }}" method="post" class="w-full">
                         @csrf
-                        <input type="hidden" name="modo" value="pve">
+                        <input type="hidden" name="modo" value="{{ $modo }}">
 
                         <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" id="dificuldade-cards">
 

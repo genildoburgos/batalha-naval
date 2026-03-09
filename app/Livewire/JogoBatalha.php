@@ -16,6 +16,9 @@ class JogoBatalha extends Component
     public string $fase = 'posicionamento';
     public $navioSelecionado = null;
 
+    public bool $jaMoveuNesteTurno = false;
+    public $navioParaMover = null; // ID do navio selecionado para movimento
+
     // Controles de Visão e Direção
     public int $direcaoNavio = 0; // 0: Leste, 1: Sul, 2: Oeste, 3: Norte
     public int $anguloRadar = -45;
@@ -131,16 +134,16 @@ class JogoBatalha extends Component
 
         // Aplica o posicionamento
         foreach ($coordenadas as $index => $coord) {
-        $this->meuTabuleiro[$coord[0]][$coord[1]] = [
-            'status'  => 'posicionado',
-            'navio'   => $this->navioSelecionado,
-            'ship_id' => $idNavio,
-            'cor'     => $this->naviosDisponiveis[$this->navioSelecionado]['cor'],
-            'parte'   => $index,
-            'tamanho' => $tamanho,
-            'direcao' => $this->direcaoNavio,
-        ];
-    }
+            $this->meuTabuleiro[$coord[0]][$coord[1]] = [
+                'status'  => 'posicionado',
+                'navio'   => $this->navioSelecionado,
+                'ship_id' => $idNavio,
+                'cor'     => $this->naviosDisponiveis[$this->navioSelecionado]['cor'],
+                'parte'   => $index,
+                'tamanho' => $tamanho,
+                'direcao' => $this->direcaoNavio,
+            ];
+        }
 
         $this->navioSelecionado = null;
         $this->salvarMeuTabuleiro();
@@ -175,12 +178,18 @@ class JogoBatalha extends Component
 
         // Se errou, passa o turno para a IA
         if (!$acertou) {
+            $this->jaMoveuNesteTurno = false; // Reset para o próximo turno do jogador
             $this->turnoIA();
         }
     }
 
     private function turnoIA()
     {
+        // Se for modo dinâmico, a IA tenta mover um navio antes de atirar
+        if ($this->partida->modo === 'dinamico') {
+            $this->executarMovimentoIA();
+        }
+
         $tabuleiroJogador = Tabuleiro::where('partida_id', $this->partida->id)
             ->where('user_id', Auth::id())
             ->first();
@@ -196,6 +205,96 @@ class JogoBatalha extends Component
         // Se a IA acertar, ela joga novamente
         if ($acertou && $this->fase === 'batalha') {
             $this->turnoIA();
+        }
+    }
+
+    private function executarMovimentoIA()
+    {
+        $tabuleiroIA = Tabuleiro::where('partida_id', $this->partida->id)->whereNull('user_id')->first();
+        $grid = $tabuleiroIA->tabuleiro_grid;
+
+        // 1. Coletar IDs de navios da IA que ainda não foram totalmente afundados
+        $idsNavios = [];
+        foreach ($grid as $linha) {
+            foreach ($linha as $celula) {
+                if (isset($celula['ship_id']) && $celula['status'] !== 'afundado') {
+                    $idsNavios[] = $celula['ship_id'];
+                }
+            }
+        }
+        $idsNavios = array_unique($idsNavios);
+
+        if (empty($idsNavios)) return;
+
+        // 2. Escolher um navio aleatório e uma direção aleatória
+        $idSorteado = $idsNavios[array_rand($idsNavios)];
+        $direcoes = ['norte', 'sul', 'leste', 'oeste'];
+        shuffle($direcoes);
+
+        // 3. Tentar mover (Reutiliza a lógica de validação do passo 2 que você já implementou)
+        foreach ($direcoes as $dir) {
+            if ($this->validarEMoverNavioNoGrid($grid, $idSorteado, $dir)) {
+                $tabuleiroIA->update(['tabuleiro_grid' => $grid]);
+                $this->carregarTabuleiros();
+                break;
+            }
+        }
+    }
+
+    // Método para o clique no navio (Radar Amigo)
+    public function selecionarNavioParaMover($id)
+    {
+        if ($this->jaMoveuNesteTurno) return;
+        $this->navioParaMover = $id;
+    }
+
+    // Helper essencial usado tanto pelo jogador quanto pela IA
+    private function validarEMoverNavioNoGrid(&$grid, $idNavio, $direcao)
+    {
+        $coordsAntigas = [];
+        $coordsNovas = [];
+
+        foreach ($grid as $r => $linha) {
+            foreach ($linha as $c => $celula) {
+                if (($celula['ship_id'] ?? null) === $idNavio) {
+                    $coordsAntigas[] = ['r' => $r, 'c' => $c, 'dados' => $celula];
+                    $nr = $r;
+                    $nc = $c;
+                    if ($direcao === 'norte') $nr--;
+                    elseif ($direcao === 'sul') $nr++;
+                    elseif ($direcao === 'leste') $nc++;
+                    elseif ($direcao === 'oeste') $nc--;
+
+                    if ($nr < 0 || $nr > 9 || $nc < 0 || $nc > 9) return false;
+                    $coordsNovas[] = ['r' => $nr, 'c' => $nc];
+                }
+            }
+        }
+
+        foreach ($coordsNovas as $nova) {
+            $celulaAlvo = $grid[$nova['r']][$nova['c']];
+            if (isset($celulaAlvo['ship_id']) && $celulaAlvo['ship_id'] !== $idNavio) return false;
+        }
+
+        foreach ($coordsAntigas as $antiga) {
+            $grid[$antiga['r']][$antiga['c']] = ['status' => 'agua', 'navio' => null];
+        }
+        foreach ($coordsNovas as $idx => $nova) {
+            $grid[$nova['r']][$nova['c']] = $coordsAntigas[$idx]['dados'];
+        }
+        return true;
+    }
+
+    // ----------- MOVER NAVIO -----------
+
+    public function moverNavio($direcao) // 'norte', 'sul', 'leste', 'oeste'
+    {
+        if ($this->jaMoveuNesteTurno || !$this->navioParaMover) return;
+
+        if ($this->validarEMoverNavioNoGrid($this->meuTabuleiro, $this->navioParaMover, $direcao)) {
+            $this->salvarMeuTabuleiro();
+            $this->jaMoveuNesteTurno = true;
+            $this->navioParaMover = null;
         }
     }
 
@@ -298,12 +397,13 @@ class JogoBatalha extends Component
                     $dir = rand(0, 3);
 
                     if ($this->validarPosicaoIA($grid, $r, $c, $config['tamanho'], $dir)) {
-                        $idNavio = uniqid($tipo.'_');
+                        $idNavio = uniqid($tipo . '_');
                         for ($i = 0; $i < $config['tamanho']; $i++) {
-                            $nr = $r; $nc = $c;
-                            if($dir === 0) $nc += $i;
-                            elseif($dir === 1) $nr += $i;
-                            elseif($dir === 2) $nc -= $i;
+                            $nr = $r;
+                            $nc = $c;
+                            if ($dir === 0) $nc += $i;
+                            elseif ($dir === 1) $nr += $i;
+                            elseif ($dir === 2) $nc -= $i;
                             else $nr -= $i;
 
                             $grid[$nr][$nc] = [
@@ -327,13 +427,14 @@ class JogoBatalha extends Component
     private function validarPosicaoIA($grid, $r, $c, $tam, $dir)
     {
         for ($i = 0; $i < $tam; $i++) {
-            $nr = $r; $nc = $c;
-            if($dir === 0) $nc += $i;
-            elseif($dir === 1) $nr += $i;
-            elseif($dir === 2) $nc -= $i;
+            $nr = $r;
+            $nc = $c;
+            if ($dir === 0) $nc += $i;
+            elseif ($dir === 1) $nr += $i;
+            elseif ($dir === 2) $nc -= $i;
             else $nr -= $i;
 
-            if($nr < 0 || $nr > 9 || $nc < 0 || $nc > 9 || isset($grid[$nr][$nc]['ship_id'])) {
+            if ($nr < 0 || $nr > 9 || $nc < 0 || $nc > 9 || isset($grid[$nr][$nc]['ship_id'])) {
                 return false;
             }
         }
@@ -368,10 +469,10 @@ class JogoBatalha extends Component
             : 0;
 
         // Cálculo de pontuação
-        $base = match($this->partida->dificuldade) {
+        $base = match ($this->partida->dificuldade) {
             'facil'  => 100,
             'medio'  => 250,
-            'dificil'=> 500,
+            'dificil' => 500,
             default  => 100,
         };
 
@@ -393,7 +494,7 @@ class JogoBatalha extends Component
             'dificuldade'     => $this->partida->dificuldade,
             'tiros_dados'     => $tirosDados,
             'acertos'         => $acertos,
-            'navios_afundados'=> $naviosAfundados,
+            'navios_afundados' => $naviosAfundados,
             'tempo_segundos'  => $tempo,
             'pontuacao'       => $pontuacao,
         ]);

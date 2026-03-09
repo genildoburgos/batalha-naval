@@ -20,9 +20,10 @@ class PartidaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request) // Adicione o Request
     {
-        return view('campanha_dificuldade');
+        $modo = $request->query('modo', 'pve'); // Captura o modo da URL
+        return view('campanha_dificuldade', compact('modo')); // Passa para a view
     }
 
     public function modos()

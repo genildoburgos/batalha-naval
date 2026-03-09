@@ -22,7 +22,7 @@ class PartidaStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'modo'  => ['required', 'in:pve,pvp'],
+            'modo'  => ['required', 'in:pve,pvp,dinamico'],
             'dificuldade'   => ['required', 'in:facil,medio,dificil'],
         ];
     }
