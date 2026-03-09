@@ -269,7 +269,7 @@ class="grid-cell {{ isset($celula['ship_id']) ? 'ship-block cursor-alias' : 'hov
                     @if(($partida->modo ?? '') === 'dinamico' && !$jaMoveuNesteTurno)
                         <div class="mt-8 p-6 bg-white/5 rounded-3xl border border-[#137fec]/20">
                             <h5 class="text-[#137fec] font-black text-xs uppercase tracking-widest text-center mb-6">Manobra Tática</h5>
-                            
+
                             @if($navioParaMover)
                                 <div class="grid grid-cols-3 gap-3 max-w-[180px] mx-auto">
                                     <button wire:click="moverNavio('norte')" class="col-start-2 p-3 bg-[#137fec]/10 hover:bg-[#137fec] rounded-2xl transition-all">
