@@ -130,12 +130,11 @@
 
                     <!-- Buttons -->
                     <div class="flex w-full max-w-lg flex-col items-center gap-3 pt-6 sm:flex-row">
-                        <button
-                            type="button"
+                        <a href="{{ route('dashboard') }}"
                             class="flex h-12 w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white text-base font-bold leading-normal tracking-wide transition-colors hover:bg-slate-300 dark:hover:bg-slate-700"
                         >
                             <span class="truncate">Voltar ao Menu</span>
-                        </button>
+                        </a>
 
                         <button
                             form="campanha_store"
