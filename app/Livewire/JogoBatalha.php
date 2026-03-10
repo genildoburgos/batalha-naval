@@ -9,6 +9,8 @@ use \App\Models\Ranking;
 use App\Services\AI\AISelector;
 use Illuminate\Support\Facades\Auth;
 use App\Events\JogadaRealizada;
+use App\Models\Medalha;
+use App\Services\MedalhaService;
 
 class JogoBatalha extends Component
 {
@@ -99,7 +101,7 @@ class JogoBatalha extends Component
             default => 'posicionamento'
         };
 
-        // Se sou o criador e ainda não tem oponente, eu posso posicionar, 
+        // Se sou o criador e ainda não tem oponente, eu posso posicionar,
         // mas não posso atirar (bloquearAcoes impede o tiro, mas não o posicionamento no seu código atual)
         if ($this->partida->modo === 'pvp' && !$this->partida->jogador2_id) {
             // Não bloqueamos aqui para o criador conseguir posicionar os navios dele!
@@ -616,46 +618,47 @@ class JogoBatalha extends Component
     }
 
     private function calcularERegistrarRanking(bool $venceu): void
-    {
-        // Identifica o tabuleiro do "meu inimigo" (IA ou Humano)
-        $queryInimigo = Tabuleiro::where('partida_id', $this->partida->id);
-        if ($this->partida->eMultiplayer()) {
-            $queryInimigo->where('user_id', '!=', Auth::id());
-        } else {
-            $queryInimigo->whereNull('user_id');
-        }
-        $tabuleiroAlvo = $queryInimigo->first();
-
-        // Estatísticas baseadas no tabuleiro onde disparei
-        $tirosDados      = $tabuleiroAlvo->tiros()->count();
-        $acertos         = $tabuleiroAlvo->tiros()->where('foi_atingido', true)->count();
-        $naviosAfundados = $tabuleiroAlvo->tiros()->where('navio_afundado', true)->count();
-
-        $tempo = $this->partida->started_at ? (int) $this->partida->started_at->diffInSeconds(now()) : 0;
-
-        // Cálculo de pontuação
-        $base = match ($this->partida->dificuldade) {
-            'facil'  => 100,
-            'medio'  => 250,
-            'dificil' => 500,
-            default  => 200, // Pontuação base para PvP
-        };
-
-        $bonusPrecisao = $tirosDados > 0 ? (int) round(($acertos / $tirosDados) * 200) : 0;
-        $bonusTempo = max(0, 300 - (int) floor($tempo / 10));
-        $bonusVitoria = $venceu ? 300 : 0;
-
-        Ranking::updateOrCreate(
-            ['user_id' => Auth::id(), 'partida_id' => $this->partida->id],
-            [
-                'venceu'          => $venceu,
-                'dificuldade'     => $this->partida->dificuldade ?? 'medio',
-                'tiros_dados'     => $tirosDados,
-                'acertos'         => $acertos,
-                'navios_afundados' => $naviosAfundados,
-                'tempo_segundos'  => $tempo,
-                'pontuacao'       => $base + $bonusPrecisao + $bonusTempo + $bonusVitoria,
-            ]
-        );
+{
+    $queryInimigo = Tabuleiro::where('partida_id', $this->partida->id);
+    if ($this->partida->eMultiplayer()) {
+        $queryInimigo->where('user_id', '!=', Auth::id());
+    } else {
+        $queryInimigo->whereNull('user_id');
     }
+    $tabuleiroAlvo = $queryInimigo->first();
+
+    $tirosDados      = $tabuleiroAlvo->tiros()->count();
+    $acertos         = $tabuleiroAlvo->tiros()->where('foi_atingido', true)->count();
+    $naviosAfundados = $tabuleiroAlvo->tiros()->where('navio_afundado', true)->count();
+    $tempo           = $this->partida->started_at
+        ? (int) $this->partida->started_at->diffInSeconds(now())
+        : 0;
+
+    $base = match ($this->partida->dificuldade) {
+        'facil'   => 100,
+        'medio'   => 250,
+        'dificil' => 500,
+        default   => 200,
+    };
+
+    $bonusPrecisao = $tirosDados > 0 ? (int) round(($acertos / $tirosDados) * 200) : 0;
+    $bonusTempo    = max(0, 300 - (int) floor($tempo / 10));
+    $bonusVitoria  = $venceu ? 300 : 0;
+
+    $ranking = Ranking::updateOrCreate(
+        ['user_id' => Auth::id(), 'partida_id' => $this->partida->id],
+        [
+            'venceu'           => $venceu,
+            'dificuldade'      => $this->partida->dificuldade ?? 'medio',
+            'tiros_dados'      => $tirosDados,
+            'acertos'          => $acertos,
+            'navios_afundados' => $naviosAfundados,
+            'tempo_segundos'   => $tempo,
+            'pontuacao'        => $base + $bonusPrecisao + $bonusTempo + $bonusVitoria,
+        ]
+    );
+
+    // ── NOVO: avalia e concede medalhas ──
+    (new MedalhaService())->avaliarEConceder(Auth::id(), $this->partida, $ranking);
+}
 }
