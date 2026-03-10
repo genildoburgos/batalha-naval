@@ -103,8 +103,7 @@
         <div class="absolute inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
             <div class="flex flex-col items-center gap-8 rounded-3xl border border-white/10 bg-[#0a0f14] p-16 text-center shadow-2xl max-w-lg w-full mx-4">
 
-                @php $ranking = Ranking::where('partida_id', $partida->id)->where('user_id', auth()->id())->latest()->first(); @endphp
-
+                @php $ranking = \App\Models\Ranking::where('partida_id', $partida->id)->where('user_id', auth()->id())->latest()->first(); @endphp
                 @if($ranking && $ranking->venceu)
                     <span class="material-symbols-outlined text-8xl text-yellow-400 animate-bounce">military_tech</span>
                     <h2 class="text-5xl font-black uppercase italic tracking-tighter text-yellow-400">Vitória!</h2>

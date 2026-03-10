@@ -1,7 +1,7 @@
 <nav class="bg-[#020617] border-b border-white/5 sticky top-0 z-50 backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-20">
-            
+
             <div class="flex">
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" class="group">
@@ -10,21 +10,18 @@
                 </div>
 
                 <div class="hidden space-x-4 sm:-my-px sm:ms-10 sm:flex items-center">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" 
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"
                         class="text-xs font-black uppercase italic tracking-[0.2em]">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    
-                    <x-nav-link :href="route('ranking.index')" :active="request()->routeIs('ranking.index')"
-                        class="text-xs font-black uppercase italic tracking-[0.2em]">
-                        Ranking
-                    </x-nav-link>
+
+
                 </div>
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6 relative">
                 <div class="relative">
-                    <button id="user-menu-button" type="button" 
+                    <button id="user-menu-button" type="button"
                             class="inline-flex items-center px-4 py-2 border-2 border-white/5 rounded-xl text-xs font-black uppercase italic tracking-widest text-slate-400 bg-slate-900/50 hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all duration-300 shadow-lg">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-sm">person</span>
@@ -35,9 +32,9 @@
                         </svg>
                     </button>
 
-                    <div id="user-menu-dropdown" 
+                    <div id="user-menu-dropdown"
                          class="hidden absolute right-0 mt-2 w-48 bg-[#020617] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50">
-                        
+
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-3 text-[10px] font-black uppercase italic tracking-widest text-slate-400 hover:bg-blue-600 hover:text-white transition-colors border-b border-white/5">
                             Configurações
                         </a>
