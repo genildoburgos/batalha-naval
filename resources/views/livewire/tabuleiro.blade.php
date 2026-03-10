@@ -1,4 +1,4 @@
-<div class="relative flex h-screen w-full flex-col bg-[#0a0f14] font-display text-white overflow-hidden text-sm md:text-base">
+<div x-data x-on:ia-turno.window="setTimeout(() => $wire.turnoIA(), 1000)" class="relative flex h-screen w-full flex-col bg-[#0a0f14] font-display text-white overflow-hidden text-sm md:text-base">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 

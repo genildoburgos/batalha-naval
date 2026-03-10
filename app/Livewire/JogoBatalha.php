@@ -18,6 +18,7 @@ class JogoBatalha extends Component
 
     public bool $jaMoveuNesteTurno = false;
     public $navioParaMover = null; // ID do navio selecionado para movimento
+    public bool $bloquearAcoes = false;
 
     // Controles de Visão e Direção
     public int $direcaoNavio = 0; // 0: Leste, 1: Sul, 2: Oeste, 3: Norte
@@ -167,7 +168,7 @@ class JogoBatalha extends Component
 
     public function atirar($r, $c)
     {
-        if ($this->fase !== 'batalha') return;
+        if ($this->fase !== 'batalha' || $this->bloquearAcoes) return;
 
         $tabuleiroIA = Tabuleiro::where('partida_id', $this->partida->id)->whereNull('user_id')->first();
 
@@ -179,12 +180,15 @@ class JogoBatalha extends Component
         // Se errou, passa o turno para a IA
         if (!$acertou) {
             $this->jaMoveuNesteTurno = false; // Reset para o próximo turno do jogador
-            $this->turnoIA();
+            $this->bloquearAcoes = true;
+            $this->dispatch('ia-turno');
         }
     }
 
-    private function turnoIA()
+    public function turnoIA()
     {
+        if (!$this->bloquearAcoes) return;
+
         // Se for modo dinâmico, a IA tenta mover um navio antes de atirar
         if ($this->partida->modo === 'dinamico') {
             $this->executarMovimentoIA();
@@ -202,9 +206,12 @@ class JogoBatalha extends Component
         $alvo = (new AISelector())->playTurn($dadosJogo);
         $acertou = $this->registrarTiro($tabuleiroJogador, $alvo['x'], $alvo['y']);
 
-        // Se a IA acertar, ela joga novamente
+        // Se a IA acertar e o jogo continuar em batalha, a IA joga novamente após um tempo
         if ($acertou && $this->fase === 'batalha') {
-            $this->turnoIA();
+            $this->dispatch('ia-turno');
+        } else {
+            // Se errou (ou acabou o jogo), a vez volta pro jogador
+            $this->bloquearAcoes = false;
         }
     }
 
@@ -244,7 +251,7 @@ class JogoBatalha extends Component
     // Método para o clique no navio (Radar Amigo)
     public function selecionarNavioParaMover($id)
     {
-        if ($this->jaMoveuNesteTurno) return;
+        if ($this->jaMoveuNesteTurno || $this->bloquearAcoes) return;
         $this->navioParaMover = $id;
     }
 
@@ -289,7 +296,7 @@ class JogoBatalha extends Component
 
     public function moverNavio($direcao) // 'norte', 'sul', 'leste', 'oeste'
     {
-        if ($this->jaMoveuNesteTurno || !$this->navioParaMover) return;
+        if ($this->jaMoveuNesteTurno || !$this->navioParaMover || $this->bloquearAcoes) return;
 
         if ($this->validarEMoverNavioNoGrid($this->meuTabuleiro, $this->navioParaMover, $direcao)) {
             $this->salvarMeuTabuleiro();
