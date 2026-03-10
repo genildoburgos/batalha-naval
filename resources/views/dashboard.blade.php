@@ -1,6 +1,4 @@
 <x-app-layout>
-
-
             <div class="flex h-full grow flex-col">
                 <div class="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
                     <div class="flex w-full max-w-lg flex-col items-center">
@@ -36,8 +34,6 @@
                                 </a>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>
